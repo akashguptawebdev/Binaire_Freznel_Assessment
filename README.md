@@ -235,6 +235,11 @@ scalar against a locally computed sum.
 
 ---
 
+## Links
+
+- **GitHub:** <https://github.com/akashguptawebdev/Binaire_Freznel_Assessment>
+- **Live demo:** _deploy via Vercel (import the repo — `vercel.json` is preconfigured) or Render (`render.yaml`), then paste the URL here_
+
 ## Submission
 
 - **Repo name:** `Binaire_Freznel_Assessment`
