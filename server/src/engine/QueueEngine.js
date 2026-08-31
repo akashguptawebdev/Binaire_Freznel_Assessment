@@ -169,6 +169,27 @@ export class QueueEngine extends EventEmitter {
     return task.toJSON();
   }
 
+  /**
+   * Serverless helper: enqueue, then drive the scheduler to completion inside
+   * this single request (there is no background tick on a frozen lambda, and a
+   * follow-up status request may hit a different instance). The returned
+   * summary carries the result CSV inline (base64) so the client can offer a
+   * download with no second round-trip.
+   */
+  async submitAndSettle(input, { timeoutMs = 45_000 } = {}) {
+    const summary = this.submit(input);
+    const task = this.#tasks.get(summary.id);
+    const deadline = Date.now() + timeoutMs;
+    while (task && !task.isTerminal && Date.now() < deadline) {
+      this.#scheduler.pump();
+      await new Promise((r) => setTimeout(r, 12));
+    }
+    const json = task ? task.toJSON() : summary;
+    const entry = task && this.#results.get(task.id);
+    if (entry) json.resultCsv = Buffer.from(entry.csv, 'utf8').toString('base64');
+    return json;
+  }
+
   cancelTask(taskId, clientId) {
     const task = this.#tasks.get(taskId);
     if (!task) throw new NotFoundError(`Unknown task ${taskId}`);

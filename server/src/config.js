@@ -53,7 +53,7 @@ export const config = {
     maxChunkRetries: int(process.env.WORKER_MAX_CHUNK_RETRIES, 2),
     // Artificial per-chunk delay so the processing animation is visible in a
     // demo. Set to 0 for raw throughput.
-    demoDelayMs: int(process.env.WORKER_DEMO_DELAY_MS, 220),
+    demoDelayMs: int(process.env.WORKER_DEMO_DELAY_MS, isServerless ? 0 : 220),
     // Idle workers are shut down after this long (matters on serverless).
     idleShutdownMs: int(process.env.WORKER_IDLE_SHUTDOWN_MS, 60_000),
     // In serverless we cannot rely on background threads surviving between

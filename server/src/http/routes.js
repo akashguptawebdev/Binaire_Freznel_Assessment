@@ -67,18 +67,17 @@ export function createRouter({ engine, sseHub }) {
   router.post(
     '/uploads',
     upload.single('file'),
-    wrap((req, res) => {
+    wrap(async (req, res) => {
       if (!req.file) throw new ValidationError('Missing "file" field (multipart/form-data).');
       const clientId = String(req.body?.clientId || '').trim();
       if (!clientId) throw new ValidationError('Missing "clientId".');
       const priority = String(req.body?.priority || 'low').toLowerCase();
+      const input = { clientId, fileName: req.file.originalname, buffer: req.file.buffer, priority };
 
-      const task = engine.submit({
-        clientId,
-        fileName: req.file.originalname,
-        buffer: req.file.buffer,
-        priority,
-      });
+      // Serverless: settle within this request (no background scheduler, and
+      // the next request may land on another instance). Server mode: enqueue
+      // and let the tick loop + SSE take it from here.
+      const task = config.isServerless ? await engine.submitAndSettle(input) : engine.submit(input);
       res.status(201).json({ task });
     }),
   );

@@ -53,7 +53,11 @@ export default function FileStatusCard({ entry, clientId }) {
             </button>
           )}
           {state === 'COMPLETED' && (
-            <a className="btn-solid" href={api.resultFileUrl(task.id)} download>
+            <a
+              className="btn-solid"
+              href={task.resultCsv ? `data:text/csv;base64,${task.resultCsv}` : api.resultFileUrl(task.id)}
+              download={`result-${task.id}.csv`}
+            >
               ⬇ result CSV
             </a>
           )}
