@@ -1,0 +1,21 @@
+# One-service deploy: Node queue server (real worker_threads + SSE) that also
+# serves the built React dashboard. Render's free web service keeps the
+# process alive, so the background scheduler + deadlock guard run properly.
+services:
+  - type: web
+    name: freznel-queue
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NODE_ENV
+        value: production
+      - key: WORKER_DEMO_DELAY_MS
+        value: "150"
+      - key: QUEUE_CAPACITY
+        value: "250"
