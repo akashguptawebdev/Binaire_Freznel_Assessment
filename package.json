@@ -1,0 +1,26 @@
+{
+  "name": "binaire-freznel-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-user CSV all-reduce queueing system — Node.js server (Express + worker_threads) with a priority queue, deadlock guard, and a React live dashboard.",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "start": "node server/src/index.js",
+    "dev": "node --watch server/src/index.js",
+    "dev:web": "npm --prefix web run dev",
+    "dev:all": "node scripts/dev.mjs",
+    "build": "npm --prefix web install && npm --prefix web run build",
+    "test": "node --test \"server/tests/**/*.test.js\"",
+    "gen:samples": "node scripts/generate-samples.mjs",
+    "simulate": "node scripts/simulate-clients.mjs"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "multer": "^2.0.1"
+  }
+}
