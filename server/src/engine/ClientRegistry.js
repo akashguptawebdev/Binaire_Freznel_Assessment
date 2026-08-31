@@ -28,6 +28,23 @@ export class ClientRegistry extends EventEmitter {
     return c;
   }
 
+  /**
+   * Return the client for `id`, re-materialising it if it has been lost.
+   * On serverless a follow-up request can land on a different (or cold)
+   * instance that never saw the original `POST /api/clients`; rather than
+   * 404 the upload, we trust the client's self-reported id and adopt it.
+   */
+  ensure(id, label) {
+    let c = this.#clients.get(id);
+    if (!c) {
+      c = new Client({ label });
+      c.id = id;
+      this.#clients.set(id, c);
+      this.emit('change');
+    }
+    return c;
+  }
+
   heartbeat(id) {
     const c = this.#clients.get(id);
     if (c) c.heartbeat();

@@ -121,7 +121,11 @@ export class QueueEngine extends EventEmitter {
    * @returns {object} task summary
    */
   submit({ clientId, fileName, buffer, priority }) {
-    const client = this.#registry.require(clientId);
+    // `ensure` (not `require`) so an upload still works if the registering
+    // request and this one landed on different serverless instances.
+    const client = this.#config.isServerless
+      ? this.#registry.ensure(clientId, 'adopted client')
+      : this.#registry.require(clientId);
 
     const ext = path.extname(fileName || '').toLowerCase();
     if (ext && !this.#config.upload.allowedExt.includes(ext)) {
