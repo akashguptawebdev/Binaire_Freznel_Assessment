@@ -238,7 +238,13 @@ scalar against a locally computed sum.
 ## Links
 
 - **GitHub:** <https://github.com/akashguptawebdev/Binaire_Freznel_Assessment>
-- **Live demo:** _deploy via Vercel (import the repo — `vercel.json` is preconfigured) or Render (`render.yaml`), then paste the URL here_
+- **Live demo (Vercel):** <https://binaire-freznel-assessment.vercel.app>
+
+> On Vercel the API runs as a serverless function: the worker pool is swapped
+> for an inline chunked reducer and the scheduler is advanced by HTTP ticks from
+> the dashboard. For a fully stateful queue (real `worker_threads`, background
+> scheduler, SSE) deploy the long-lived server with the included `render.yaml`
+> or `Dockerfile` — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Submission
 

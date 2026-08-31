@@ -7,5 +7,7 @@ npm-debug.log*
 .DS_Store
 .env
 .env.local
+.env.*.local
 .vercel
 coverage/
+!.env.example
