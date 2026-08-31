@@ -97,6 +97,20 @@ test('bounded queue rejects with QUEUE_FULL instead of blocking', async () => {
   await engine.stop();
 });
 
+test('cancelling an in-flight task drains its chunks and ends CANCELLED', async () => {
+  const engine = makeEngine({ demoDelayMs: 40, poolSize: 2 });
+  const client = engine.registerClient('canceller');
+  const rows = Array.from({ length: 120 }, (_, i) => [i, i * 2]);
+  const { id } = engine.submit({ clientId: client.id, fileName: 'big.csv', buffer: csvOf(rows), priority: 'low' });
+  await new Promise((r) => setTimeout(r, 60));
+  engine.cancelTask(id, client.id);
+  const done = await settle(engine, id, 3000);
+  assert.equal(done.state, 'CANCELLED');
+  const snap = engine.snapshot();
+  assert.equal(snap.queue.activeProcesses, 0, 'process slot must be freed');
+  await engine.stop();
+});
+
 test('aging promotes a starved low-priority task', async () => {
   const engine = makeEngine({ queue: { maxConcurrentProcesses: 1 }, demoDelayMs: 30, poolSize: 2 });
   const client = engine.registerClient('mix');

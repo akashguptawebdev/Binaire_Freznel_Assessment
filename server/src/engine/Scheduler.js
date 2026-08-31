@@ -88,6 +88,7 @@ export class Scheduler extends EventEmitter {
     for (const [pid, record] of this.#active) {
       if (record.task === task) {
         record.cancelled = true;
+        record.cancelReason = reason;
         record.pending.length = 0;
         if (record.inFlight === 0) this.#retireProcess(pid, () => task.cancel(reason));
         this.emit('change');
@@ -207,7 +208,7 @@ export class Scheduler extends EventEmitter {
       .then((res) => {
         record.inFlight -= 1;
         if (record.cancelled) {
-          if (record.inFlight === 0) this.#retireProcess(record.processId);
+          if (record.inFlight === 0) this.#retireProcess(record.processId, () => task.cancel(record.cancelReason || "cancelled"));
           return;
         }
         task.recordChunkResult({ sum: res.sum, count: res.count });
@@ -218,7 +219,7 @@ export class Scheduler extends EventEmitter {
       .catch((err) => {
         record.inFlight -= 1;
         if (record.cancelled) {
-          if (record.inFlight === 0) this.#retireProcess(record.processId);
+          if (record.inFlight === 0) this.#retireProcess(record.processId, () => task.cancel(record.cancelReason || "cancelled"));
           return;
         }
         const attempts = (record.retries.get(chunkIndex) || 0) + 1;
